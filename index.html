@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Converter</title>
+    <title data-i18n="title">SJ's Live Currency Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -39,64 +39,144 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4" onload="initApp()">
-    <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl input-card">
-        <h1 class="text-3xl font-bold text-center text-blue-700">SJ's Live Currency Calculator</h1>
-        <p class="text-center text-gray-500">Enter an amount in any currency below. Rates are fetched live!</p>
-
-        <!-- Dynamic Rate Status/Disclaimer -->
-        <div id="rate-info" class="p-3 text-sm text-center bg-yellow-100 border border-yellow-300 rounded-lg flex items-center justify-center space-x-2">
-            <!-- Loading message will appear here -->
-            <div id="rate-message">Initializing live rates...</div>
-            <div id="loading-indicator" class="loading-spinner"></div>
+    
+    <div class="relative w-full max-w-lg">
+        <!-- Language Selector -->
+        <div class="absolute top-0 right-0 p-2 sm:p-0">
+            <select id="language-selector" onchange="setLanguage(this.value)" 
+                    class="p-2 text-sm border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+            </select>
         </div>
 
-        <!-- USD Input/Output -->
-        <div class="space-y-2">
-            <label for="usd-input" class="block text-lg font-semibold text-gray-700">United States Dollar (USD)</label>
-            <input 
-                type="number" 
-                id="usd-input" 
-                min="0"
-                class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500" 
-                placeholder="0.00"
-                oninput="convert('USD')"
-            >
-        </div>
+        <div class="w-full p-8 space-y-6 bg-white rounded-xl input-card">
+            <h1 id="app-title" class="text-3xl font-bold text-center text-blue-700" data-i18n="title">SJ's Live Currency Calculator</h1>
+            <p id="app-subtitle" class="text-center text-gray-500" data-i18n="subtitle">Enter an amount in any currency below. Rates are fetched live!</p>
 
-        <!-- CAD Input/Output -->
-        <div class="space-y-2">
-            <label for="cad-input" class="block text-lg font-semibold text-gray-700">Canadian Dollar (CAD)</label>
-            <input 
-                type="number" 
-                id="cad-input" 
-                min="0"
-                class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500" 
-                placeholder="0.00"
-                oninput="convert('CAD')"
-            >
-        </div>
+            <!-- Dynamic Rate Status/Disclaimer -->
+            <div id="rate-info" class="p-3 text-sm text-center bg-yellow-100 border border-yellow-300 rounded-lg flex items-center justify-center space-x-2">
+                <!-- Loading message will appear here -->
+                <div id="rate-message" data-i18n-dynamic="init_rates">Initializing live rates...</div>
+                <div id="loading-indicator" class="loading-spinner"></div>
+            </div>
 
-        <!-- CNY Input/Output -->
-        <div class="space-y-2">
-            <label for="cny-input" class="block text-lg font-semibold text-gray-700">Chinese Yuan (CNY)</label>
-            <input 
-                type="number" 
-                id="cny-input" 
-                min="0"
-                class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500" 
-                placeholder="0.00"
-                oninput="convert('CNY')"
-            >
+            <!-- USD Input/Output -->
+            <div class="space-y-2">
+                <label for="usd-input" class="block text-lg font-semibold text-gray-700" data-i18n="usd_label">United States Dollar (USD)</label>
+                <input 
+                    type="number" 
+                    id="usd-input" 
+                    min="0"
+                    class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-green-300 rounded-lg focus:ring-green-500 focus:border-green-500" 
+                    placeholder="0.00"
+                    oninput="convert('USD')"
+                >
+            </div>
+
+            <!-- CAD Input/Output -->
+            <div class="space-y-2">
+                <label for="cad-input" class="block text-lg font-semibold text-gray-700" data-i18n="cad_label">Canadian Dollar (CAD)</label>
+                <input 
+                    type="number" 
+                    id="cad-input" 
+                    min="0"
+                    class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500" 
+                    placeholder="0.00"
+                    oninput="convert('CAD')"
+                >
+            </div>
+
+            <!-- CNY Input/Output -->
+            <div class="space-y-2">
+                <label for="cny-input" class="block text-lg font-semibold text-gray-700" data-i18n="cny_label">Chinese Yuan (CNY)</label>
+                <input 
+                    type="number" 
+                    id="cny-input" 
+                    min="0"
+                    class="w-full p-3 text-2xl font-mono text-gray-800 border-2 border-yellow-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500" 
+                    placeholder="0.00"
+                    oninput="convert('CNY')"
+                >
+            </div>
         </div>
     </div>
 
     <script>
-        // --- Live Data & Configuration ---
+        // --- TRANSLATION DATA ---
+        const translations = {
+            en: {
+                title: "SJ's Live Currency Calculator",
+                subtitle: "Enter an amount in any currency below. Rates are fetched live!",
+                init_rates: "Initializing live rates...",
+                usd_label: "United States Dollar (USD)",
+                cad_label: "Canadian Dollar (CAD)",
+                cny_label: "Chinese Yuan (CNY)",
+                loading: (attempt) => `Fetching live rates... (Attempt ${attempt})`,
+                success: "Rates updated successfully! (Source: Open Exchange Rate API)",
+                error_retry: (delay, attempt) => `Failed to fetch rates. Retrying in ${delay / 1000}s... (Attempt ${attempt + 1})`,
+                error_fallback: "🔴 Failed to load live rates. Using **fixed** fallback rates.",
+                loading_wait: "Please wait, rates are still loading...",
+            },
+            zh: {
+                title: "SJ的实时汇率计算器",
+                subtitle: "在下方输入任何金额，汇率将实时获取！",
+                init_rates: "正在初始化实时汇率...",
+                usd_label: "美元 (USD)",
+                cad_label: "加元 (CAD)",
+                cny_label: "人民币 (CNY)",
+                loading: (attempt) => `正在获取实时汇率... (尝试 ${attempt})`,
+                success: "汇率更新成功！(来源：开放汇率API)",
+                error_retry: (delay, attempt) => `获取汇率失败。正在重试，${delay / 1000}秒后... (尝试 ${attempt + 1})`,
+                error_fallback: "🔴 实时汇率加载失败。正在使用**固定**备用汇率。",
+                loading_wait: "请稍候，汇率正在加载中...",
+            }
+        };
+
+        let currentLang = 'en'; // Default language
+
+        // --- LANGUAGE SWITCHING LOGIC ---
+
+        /**
+         * Sets the application language, updates all UI text, and saves the preference.
+         * @param {string} lang - 'en' or 'zh'
+         */
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('currencyConverterLang', lang);
+
+            // 1. Update static elements (elements with data-i18n attribute)
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // 2. Update the document title
+            document.querySelector('title').textContent = translations[lang].title;
+            document.documentElement.lang = lang; // Set HTML lang attribute
+
+            // 3. Update the selector to show the current language
+            document.getElementById('language-selector').value = lang;
+
+            // 4. Update dynamic messages (like rate status) if not currently loading
+            const messageKey = rateMessage.getAttribute('data-i18n-dynamic');
+            if (messageKey && typeof translations[lang][messageKey] === 'string') {
+                rateMessage.textContent = translations[lang][messageKey];
+            } else if (!loadingIndicator.classList.contains('hidden')) {
+                // If it's loading, we keep the specific loading message (handled in fetchConversionRates)
+            } else {
+                 rateMessage.textContent = translations[lang].init_rates;
+            }
+        }
+
+        // --- Live Data & Configuration (Same as before) ---
         const BASE_CURRENCY = 'USD';
         const TARGET_CURRENCIES = ['CAD', 'CNY'];
         const ALL_CURRENCIES = [BASE_CURRENCY].concat(TARGET_CURRENCIES);
         
-        let RATES = {}; // This object will store the live conversion rates { 'CAD': 1.41, 'CNY': 7.27 }
+        let RATES = {}; 
         
         // DOM elements
         const usdInput = document.getElementById('usd-input');
@@ -112,23 +192,21 @@
             'CNY': cnyInput
         };
 
-        // Function to round to two decimal places
         const round = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
-        // --- API Integration and Fetching ---
+        // --- API Integration and Fetching (MODIFIED) ---
 
-        /**
-         * Fetches live exchange rates using exponential backoff.
-         * The API is publicly available and allows cross-origin requests.
-         * @param {number} attempt - Current retry attempt number.
-         */
         async function fetchConversionRates(attempt = 1) {
-            rateMessage.textContent = `Fetching live rates... (Attempt ${attempt})`;
-            loadingIndicator.classList.remove('hidden'); // Show spinner
-            rateInfo.classList.remove('bg-yellow-100', 'border-yellow-300', 'bg-red-100', 'border-red-300');
-            rateInfo.classList.add('bg-blue-100', 'border-blue-300'); // Blue for loading
+            const lang = currentLang;
 
-            // We use USD as the base for the API call
+            // Use the language-specific loading message
+            rateMessage.textContent = translations[lang].loading(attempt);
+            loadingIndicator.classList.remove('hidden'); 
+            rateInfo.classList.remove('bg-yellow-100', 'border-yellow-300', 'bg-red-100', 'border-red-300', 'bg-green-100', 'border-green-300');
+            rateInfo.classList.add('bg-blue-100', 'border-blue-300'); 
+            rateMessage.setAttribute('data-i18n-dynamic', 'loading');
+
+
             const apiUrl = `https://open.er-api.com/v6/latest/${BASE_CURRENCY}`;
 
             try {
@@ -139,7 +217,6 @@
                 
                 if (data.result !== 'success') throw new Error('API request failed: ' + data.reason);
 
-                // Populate the RATES object with the required target currencies
                 RATES = { [BASE_CURRENCY]: 1.0 };
                 TARGET_CURRENCIES.forEach(currency => {
                     if (data.rates[currency]) {
@@ -151,51 +228,47 @@
                 });
 
                 // Update UI for success
-                loadingIndicator.classList.add('hidden'); // Hide spinner
+                loadingIndicator.classList.add('hidden');
                 rateInfo.classList.remove('bg-blue-100', 'border-blue-300');
                 rateInfo.classList.add('bg-green-100', 'border-green-300');
-                rateMessage.innerHTML = `Rates updated successfully! (Source: Open Exchange Rate API)`;
-                
-                // Log rates for debugging
+                rateMessage.innerHTML = translations[lang].success;
+                rateMessage.setAttribute('data-i18n-dynamic', 'success');
+
                 console.log('Live Rates Loaded:', RATES);
 
             } catch (error) {
                 console.error('Error fetching conversion rates:', error.message);
 
-                if (attempt < 5) { // Retry up to 5 times
-                    const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s, 16s...
-                    rateMessage.textContent = `Failed to fetch rates. Retrying in ${delay / 1000}s... (Attempt ${attempt + 1})`;
+                if (attempt < 5) { 
+                    const delay = Math.pow(2, attempt) * 1000;
+                    // Use the language-specific retry message
+                    rateMessage.textContent = translations[lang].error_retry(delay, attempt);
                     setTimeout(() => fetchConversionRates(attempt + 1), delay);
                 } else {
                     // Final failure message
                     loadingIndicator.classList.add('hidden');
-                    rateInfo.classList.remove('bg-blue-100', 'border-blue-300');
+                    rateInfo.classList.remove('bg-blue-100', 'border-blue-300', 'bg-green-100', 'border-green-300');
                     rateInfo.classList.add('bg-red-100', 'border-red-300');
-                    rateMessage.innerHTML = `🔴 Failed to load live rates. Using **fixed** fallback rates.`;
+                    // Use the language-specific fallback message
+                    rateMessage.innerHTML = translations[lang].error_fallback;
+                    rateMessage.setAttribute('data-i18n-dynamic', 'error_fallback');
                     
-                    // Fallback to fixed rates (the old rates)
+                    // Fallback to fixed rates
                     RATES = { USD: 1.0, CAD: 1.411, CNY: 7.27 };
                 }
             }
         }
 
-        // --- Conversion Logic ---
-
-        /**
-         * Converts currency from the source currency to all others.
-         * @param {string} sourceCurrency - The currency being entered (e.g., 'USD').
-         */
+        // --- Conversion Logic (Same as before) ---
         function convert(sourceCurrency) {
-            // Check if rates have been loaded (or defaulted)
             if (Object.keys(RATES).length === 0) {
-                rateMessage.textContent = "Please wait, rates are still loading...";
+                rateMessage.textContent = translations[currentLang].loading_wait;
                 return;
             }
 
             const sourceInput = inputs[sourceCurrency];
             let amount = parseFloat(sourceInput.value);
 
-            // Clear other inputs if the source input is empty or invalid
             if (isNaN(amount) || amount <= 0) {
                 usdInput.value = '';
                 cadInput.value = '';
@@ -203,11 +276,8 @@
                 return;
             }
 
-            // 1. Convert source amount to the base currency (USD)
-            // Amount in USD = Source Amount / Rate of Source Currency (relative to 1 USD)
             const amountInUSD = amount / RATES[sourceCurrency];
 
-            // 2. Convert from USD to all target currencies
             ALL_CURRENCIES.forEach(targetCurrency => {
                 if (targetCurrency !== sourceCurrency) {
                     const targetValue = amountInUSD * RATES[targetCurrency];
@@ -216,14 +286,18 @@
             });
         }
         
-        // --- Initialization ---
-        
+        // --- Initialization (MODIFIED) ---
         function initApp() {
-            // Start fetching live rates when the page loads
+            // 1. Check for saved language preference
+            const savedLang = localStorage.getItem('currencyConverterLang');
+            const initialLang = savedLang || 'en'; 
+
+            // 2. Set the language on the UI
+            setLanguage(initialLang);
+
+            // 3. Start fetching live rates
             fetchConversionRates();
         }
     </script>
 </body>
 </html>
-
-
